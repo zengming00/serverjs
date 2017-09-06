@@ -1,0 +1,3 @@
+[submodule "mujs"]
+	path = mujs
+	url = https://github.com/ccxvii/mujs.git
