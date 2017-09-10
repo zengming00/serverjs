@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "mujs.h"
+#include "js_file.h"
 
 #define PS1 "> "
 
@@ -116,7 +117,7 @@ static const char *require_js =
 	"if (name in cache) return cache[name];\n"
 	"var exports = {};\n"
 	"cache[name] = exports;\n"
-	"Function('exports', read(name+'.js'))(exports);\n"
+	"Function('exports', read(name))(exports);\n"
 	"return exports;\n"
 	"}\n"
 	"require.cache = Object.create(null);\n"
@@ -186,6 +187,8 @@ main(int argc, char **argv)
 	int i;
 
 	J = js_newstate(NULL, NULL, JS_STRICT);
+
+	initfile(J);
 
 	js_newcfunction(J, jsB_gc, "gc", 0);
 	js_setglobal(J, "gc");
