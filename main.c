@@ -5,6 +5,7 @@
 
 #include "mujs.h"
 #include "js_file.h"
+#include "js_redis.h"
 
 #define PS1 "> "
 
@@ -189,6 +190,7 @@ main(int argc, char **argv)
 	J = js_newstate(NULL, NULL, JS_STRICT);
 
 	initfile(J);
+	init_Redis(J);
 
 	js_newcfunction(J, jsB_gc, "gc", 0);
 	js_setglobal(J, "gc");
