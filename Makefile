@@ -12,7 +12,6 @@ LIBMUJS=./mujs/build/release/libmujs.a
 all:
 	$(MAKE) -C $(HIREDIS)
 	$(MAKE) -C $(MUJS)
-	$(CC) -o hiredis-test -O3 -fPIC  -Wall -W -Wstrict-prototypes -Wwrite-strings -g -ggdb  -I$(HIREDIS) hiredis-test.c $(LIBHIREDIS) 
 	$(CC) -std=c99 -pedantic -Wall -Wextra -Wno-unused-parameter -ffunction-sections -fdata-sections -Os -o main.o -c main.c -I$(MUJS)
 	$(CC) -Wall -o js_file.o -c js_file.c -I$(MUJS)
 	$(CC) -Wall -o js_redis.o -c js_redis.c -I$(MUJS) -I$(HIREDIS)

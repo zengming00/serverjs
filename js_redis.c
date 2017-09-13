@@ -46,10 +46,35 @@ static void new_Redis(js_State *J)
 
 static void Redis_prototype_cmd(js_State *J)
 {
+	unsigned int i;
 	redisContext *c = js_touserdata(J, 0, TAG);
 	const char *s = js_tostring(J, 1);
 	redisReply *reply = redisCommand(c, s);
-	js_pushstring(J, reply->str);
+
+	switch (reply->type)
+	{
+	case REDIS_REPLY_STATUS:
+	case REDIS_REPLY_ERROR:
+	case REDIS_REPLY_STRING:
+		js_pushstring(J, reply->str);
+		break;
+	case REDIS_REPLY_INTEGER:
+		js_pushnumber(J, reply->integer);
+		break;
+	case REDIS_REPLY_ARRAY:
+		js_newarray(J);
+		for (i = 0; i < reply->elements; i++)
+		{
+			// todo 不知道这样用对不对
+			js_pushstring(J, reply->element[i]->str);
+			js_setindex(J, -2, i);
+		}
+		break;
+	case REDIS_REPLY_NIL:
+	default:
+		js_pushundefined(J);
+	}
+
 	freeReplyObject(reply);
 	printf("redis.cmd()\n");
 }
@@ -74,4 +99,3 @@ void init_Redis(js_State *J)
 	js_defglobal(J, "Redis", JS_DONTENUM);
 	printf("init redis()\n");
 }
-
