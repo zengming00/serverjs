@@ -8,7 +8,7 @@
 
 static void File_finalize(js_State *J, void *data)
 {
-	printf("file.finalize()\n");
+	// printf("file.finalize()\n");
 }
 
 static void new_File(js_State *J)
@@ -28,14 +28,14 @@ static void new_File(js_State *J)
 	js_currentfunction(J);
 	js_getproperty(J, -1, "prototype");
 	js_newuserdata(J, TAG, file, File_finalize);
-	printf("file.newFile()\n");
+	// printf("file.newFile()\n");
 }
 
 static void File_prototype_readByte(js_State *J)
 {
 	FILE *file = js_touserdata(J, 0, TAG);
 	js_pushnumber(J, getc(file));
-	printf("file.readByte()\n");
+	// printf("file.readByte()\n");
 }
 
 static void File_prototype_readLine(js_State *J)
@@ -48,7 +48,7 @@ static void File_prototype_readLine(js_State *J)
 	} else {
 		js_pushnull(J);
 	}
-	printf("file.readLine()\n");
+	// printf("file.readLine()\n");
 }
 
 static void File_prototype_close(js_State *J)
@@ -56,7 +56,7 @@ static void File_prototype_close(js_State *J)
 	FILE *file = js_touserdata(J, 0, TAG);
 	fclose(file);
 	js_pushundefined(J);
-	printf("file.close()\n");
+	// printf("file.close()\n");
 }
 
 void initfile(js_State *J)
@@ -76,5 +76,5 @@ void initfile(js_State *J)
 	}
 	js_newcconstructor(J, new_File, new_File, "File", 1);
 	js_defglobal(J, "File", JS_DONTENUM);
-	printf("init file()\n");
+	// printf("init file()\n");
 }

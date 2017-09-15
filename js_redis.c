@@ -11,7 +11,7 @@
 
 static void Redis_finalize(js_State *J, void *data)
 {
-	printf("redis.finalize()\n");
+	// printf("redis.finalize()\n");
 }
 
 static void new_Redis(js_State *J)
@@ -28,28 +28,26 @@ static void new_Redis(js_State *J)
 		if (c)
 		{
 			js_error(J, "Connection error: %s\n", c->errstr);
-			redisFree(c);
+			redisFree(c);// TODO 这行不会执行
 		}
 		else
 		{
 			js_error(J, "Connection error: can't allocate redis context\n");
 		}
-		// exit(1);
-		printf("todo: exit(1)");
 	}
 
 	js_currentfunction(J);
 	js_getproperty(J, -1, "prototype");
 	js_newuserdata(J, TAG, c, Redis_finalize);
-	printf("redis.newRedis()\n");
+	// printf("redis.newRedis()\n");
 }
 
 static void Redis_prototype_cmd(js_State *J)
 {
 	unsigned int i;
-	redisContext *c = js_touserdata(J, 0, TAG);
-	const char *s = js_tostring(J, 1);
-	redisReply *reply = redisCommand(c, s);
+	redisContext *c = js_touserdata(J, 0, TAG); // idx[0] === this
+	const char *s = js_tostring(J, 1);					// idx[1] === arg1           idx[-1] 是栈顶(返回值) -2 之下
+	redisReply *reply = redisCommand(c, "%s", s);
 
 	switch (reply->type)
 	{
@@ -65,7 +63,6 @@ static void Redis_prototype_cmd(js_State *J)
 		js_newarray(J);
 		for (i = 0; i < reply->elements; i++)
 		{
-			// todo 不知道这样用对不对
 			js_pushstring(J, reply->element[i]->str);
 			js_setindex(J, -2, i);
 		}
@@ -76,7 +73,7 @@ static void Redis_prototype_cmd(js_State *J)
 	}
 
 	freeReplyObject(reply);
-	printf("redis.cmd()\n");
+	// printf("redis.cmd()\n");
 }
 
 static void Redis_prototype_close(js_State *J)
@@ -84,7 +81,7 @@ static void Redis_prototype_close(js_State *J)
 	redisContext *c = js_touserdata(J, 0, TAG);
 	redisFree(c);
 	js_pushundefined(J);
-	printf("redis.close()\n");
+	// printf("redis.close()\n");
 }
 
 void init_Redis(js_State *J)
@@ -97,5 +94,5 @@ void init_Redis(js_State *J)
 
 	js_newcconstructor(J, new_Redis, new_Redis, "Redis", 1);
 	js_defglobal(J, "Redis", JS_DONTENUM);
-	printf("init redis()\n");
+	// printf("init redis()\n");
 }
