@@ -4,6 +4,12 @@
 #include <stdarg.h>
 
 #include "mujs.h"
+#include "jsi.h"
+#include "jslex.h"
+#include "jscompile.h"
+#include "jsvalue.h"
+#include "utf.h"
+
 #include "hiredis.h"
 
 #include "js_redis.h"
@@ -47,12 +53,12 @@ static void Redis_prototype_cmd(js_State *J)
 {
 	redisContext *c = js_touserdata(J, 0, TAG); // idx[0] === this
 	unsigned int i, top = js_gettop(J);
-	const char *s = ; // idx[1] === arg1           idx[-1] 是栈顶(返回值) -2 之下
+	//const char *s = ; // idx[1] === arg1           idx[-1] 是栈顶(返回值) -2 之下
 	redisReply *reply;
 	int ap[top];
 	
 	for(i=2; i<top; i++){
-		js_Value *v = js_tovalue(J, idx);
+		js_Value *v = js_tovalue(J, i);
 		switch (v->type) {
 		case JS_TNUMBER:
 			ap[i] = (int)v->u.number;
