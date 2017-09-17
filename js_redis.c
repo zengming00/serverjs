@@ -55,21 +55,23 @@ static void Redis_prototype_cmd(js_State *J)
 	unsigned int i, top = js_gettop(J);
 	//const char *s = ; // idx[1] === arg1           idx[-1] 是栈顶(返回值) -2 之下
 	redisReply *reply;
-	int ap[top];
-	
+	void* ap[top-2];
+
 	for(i=2; i<top; i++){
+		int ii = i - 2;
 		js_Value *v = js_tovalue(J, i);
 		switch (v->type) {
 		case JS_TNUMBER:
-			ap[i] = (int)v->u.number;
+			ap[ii] = (void*)((int)v->u.number);
 			break;
 		case JS_TSHRSTR:
-			ap[i] = (int)v->u.shrstr;
+			ap[ii] = (void*)v->u.shrstr;
 			break;
 		case JS_TLITSTR:
-			ap[i] = (int)v->u.litstr;
+			ap[ii] = (void*)v->u.litstr;
+			break;
 		case JS_TMEMSTR:
-			ap[i] = (int)v->u.memstr->p;
+			ap[ii] = (void*)v->u.memstr->p;
 			break;
 		default:
 			js_error(J, "unsupport type\n");
