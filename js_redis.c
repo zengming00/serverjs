@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "mujs.h"
 #include "hiredis.h"
@@ -28,7 +29,7 @@ static void new_Redis(js_State *J)
 		if (c)
 		{
 			js_error(J, "Connection error: %s\n", c->errstr);
-			redisFree(c);// TODO 这行不会执行
+			redisFree(c); // TODO 这行不会执行
 		}
 		else
 		{
@@ -44,10 +45,32 @@ static void new_Redis(js_State *J)
 
 static void Redis_prototype_cmd(js_State *J)
 {
-	unsigned int i;
 	redisContext *c = js_touserdata(J, 0, TAG); // idx[0] === this
-	const char *s = js_tostring(J, 1);					// idx[1] === arg1           idx[-1] 是栈顶(返回值) -2 之下
-	redisReply *reply = redisCommand(c, "%s", s);
+	unsigned int i, top = js_gettop(J);
+	const char *s = ; // idx[1] === arg1           idx[-1] 是栈顶(返回值) -2 之下
+	redisReply *reply;
+	int ap[top];
+	
+	for(i=2; i<top; i++){
+		js_Value *v = js_tovalue(J, idx);
+		switch (v->type) {
+		case JS_TNUMBER:
+			ap[i] = (int)v->u.number;
+			break;
+		case JS_TSHRSTR:
+			ap[i] = (int)v->u.shrstr;
+			break;
+		case JS_TLITSTR:
+			ap[i] = (int)v->u.litstr;
+		case JS_TMEMSTR:
+			ap[i] = (int)v->u.memstr->p;
+			break;
+		default:
+			js_error(J, "unsupport type\n");
+		}
+	}
+	
+	reply= redisvCommand(c, js_tostring(J, 1), (va_list)ap);
 
 	switch (reply->type)
 	{
